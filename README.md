@@ -1,2 +1,3 @@
 # STM8-OpenWRT
 STM8 and OpenWRT
+使用STM8S103F3P6单片机控制DHT11温湿度传感器与5V带光耦隔离4路继电器模块
