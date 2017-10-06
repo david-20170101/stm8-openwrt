@@ -3,36 +3,44 @@
 
 void GPIOPC3_OUT(void)
 {
-    PC_DDR |= 0x08;    // PC3   ���
-    PC_ODR |= 0x08;    // PC3   ����
-    PC_CR1 |= 0x08;    // PC3   ����
-    //PC_CR2 |= 0x08;  // ����  10MHZ
+    PC_DDR |= 0x08;    // PC3   输出
+    PC_ODR |= 0x08;    // PC3   上拉
+    PC_CR1 |= 0x08;    // PC3   推挽
+    //PC_CR2 |= 0x08;  // 高速  10MHZ
     PC_CR2 |= 0x00;
 }
 void GPIOPC4_OUT(void)
 {
-    PC_DDR |= 0x10;    // PC4   ���
-    PC_ODR |= 0x10;    // PC4   ����
-    PC_CR1 |= 0x10;    // PC4   ����
-    //PC_CR2 |= 0x10;  // ����  10MHZ
+    PC_DDR |= 0x10;    // PC4   输出
+    PC_ODR |= 0x10;    // PC4   上拉
+    PC_CR1 |= 0x10;    // PC4   推挽
+    //PC_CR2 |= 0x10;  // 高速  10MHZ
     PC_CR2 |= 0x00;
 }
 void GPIOPC5_OUT(void)
 {
-    PC_DDR |= 0x20;    // PC5   ���
-    PC_ODR |= 0x20;    // PC5   ����
-    PC_CR1 |= 0x20;    // PC5   ����
-    //PC_CR2 |= 0x20;  // ����  10MHZ
+    PC_DDR |= 0x20;    // PC5   输出
+    PC_ODR |= 0x20;    // PC5   上拉
+    PC_CR1 |= 0x20;    // PC5   推挽
+    //PC_CR2 |= 0x20;  // 高速  10MHZ
     PC_CR2 |= 0x00;
 }
 void GPIOPC6_OUT(void)
 {
-    PC_DDR |= 0x40;    // PC6   ���
-    PC_ODR |= 0x40;    // PC6   ����
-    PC_CR1 |= 0x40;    // PC6   ����
-    //PC_CR2 |= 0x40;  // ����  10MHZ
+    PC_DDR |= 0x40;    // PC6   输出
+    PC_ODR |= 0x40;    // PC6   上拉
+    PC_CR1 |= 0x40;    // PC6   推挽
+    //PC_CR2 |= 0x40;  // 高速  10MHZ
     PC_CR2 |= 0x00;
 }
+/*************************************************************
+   函数名称:
+   函数功能:
+   入口参数:
+   入口参数的类型和含义:
+   出口参数:
+   备 注:
+*************************************************************/
 void LED_Init(char *buffer)
 {
     GPIOPC3_OUT();
@@ -72,6 +80,14 @@ void LED_Init(char *buffer)
         LED_PC6_ON;
     }
 }
+/*************************************************************
+   函数名称:
+   函数功能:
+   入口参数:
+   入口参数的类型和含义:
+   出口参数:
+   备 注:
+*************************************************************/
 void LED_Set(char *buffer)
 {
     if ( buffer[0] != buffer[4] )
@@ -123,3 +139,4 @@ void LED_Set(char *buffer)
         buffer[3] = buffer[7];
     }
 }
+/* EOF */
