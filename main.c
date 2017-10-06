@@ -248,3 +248,4 @@ void ByteToHexStr(uchar byte_arr[], uint arr_len)
 } 
 //这样就可以通过一个函数将一个BYTE数组转成一个16进制的string对象了。
 */
+/* EOF */
