@@ -53,3 +53,4 @@ struct interrupt_vector const _vectab[] = {
 	{0x82, NonHandledInterrupt}, /* irq28 */
 	{0x82, NonHandledInterrupt}, /* irq29 */
 };
+/* EOF */
