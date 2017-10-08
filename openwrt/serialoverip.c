@@ -182,7 +182,6 @@ int main(int argc,char**argv){
 		}
 		p=buf;
 		while(n>0){
-			fprintf(stderr,);
 			if(st[!i]&2)w=write(s[!i],p,n);
 			else w=sendto(s[!i],p,n,0,
 				(struct sockaddr*)&addr[!i][st[!i]],clen[!i]);
@@ -198,3 +197,4 @@ int main(int argc,char**argv){
 	}
 	return 0;
 }
+

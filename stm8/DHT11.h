@@ -6,15 +6,15 @@ extern "C"
 {
 #endif
 
-/*************************å®å®šä¹‰******************************/
+/*************************ºê¶¨Òå******************************/
 #define DATA_DQ_HIGH   PD_ODR|=0x08  
 #define DATA_DQ_LOW    PD_ODR&=0xF7  
 
 extern unsigned char TempData;
 extern unsigned char HumiData;
 
-void ReadTempAndHumi( float *pTempValue, float *pHumiValue ); //è¯»å–æ¸©åº¦å’Œæ¹¿åº¦å€¼
-void Delayms( unsigned int time );                            //å»¶æ—¶å‡½æ•°
+void ReadTempAndHumi( float *pTempValue, float *pHumiValue ); //¶ÁÈ¡ÎÂ¶ÈºÍÊª¶ÈÖµ
+void Delayms( unsigned int time );                            //ÑÓÊ±º¯Êı
 
 #ifdef __cplusplus
 }

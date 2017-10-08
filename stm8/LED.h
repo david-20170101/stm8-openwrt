@@ -6,15 +6,15 @@ extern "C"
 {
 #endif
 
-/*************************ๅฎๅฎไน******************************/
-#define LED_PC3_OFF    PC_ODR|=0x08   //ๅฐ็ฏ็็ญ
-#define LED_PC3_ON     PC_ODR&=0xF7   //ๅฐ็ฏ็นไบฎ
-#define LED_PC4_OFF    PC_ODR|=0x10   //ๅฐ็ฏ็็ญ
-#define LED_PC4_ON     PC_ODR&=0xEF   //ๅฐ็ฏ็นไบฎ
-#define LED_PC5_OFF    PC_ODR|=0x20   //ๅฐ็ฏ็็ญ
-#define LED_PC5_ON     PC_ODR&=0xDF   //ๅฐ็ฏ็นไบฎ
-#define LED_PC6_OFF    PC_ODR|=0x40   //ๅฐ็ฏ็็ญ
-#define LED_PC6_ON     PC_ODR&=0xBF   //ๅฐ็ฏ็นไบฎ
+/*************************บ๊ถจาๅ******************************/
+#define LED_PC3_OFF    PC_ODR|=0x08   //ะกตฦฯจร๐
+#define LED_PC3_ON     PC_ODR&=0xF7   //ะกตฦตใมม
+#define LED_PC4_OFF    PC_ODR|=0x10   //ะกตฦฯจร๐
+#define LED_PC4_ON     PC_ODR&=0xEF   //ะกตฦตใมม
+#define LED_PC5_OFF    PC_ODR|=0x20   //ะกตฦฯจร๐
+#define LED_PC5_ON     PC_ODR&=0xDF   //ะกตฦตใมม
+#define LED_PC6_OFF    PC_ODR|=0x40   //ะกตฦฯจร๐
+#define LED_PC6_ON     PC_ODR&=0xBF   //ะกตฦตใมม
 
 void LED_Init(char *buffer);
 void LED_Set(char *buffer);

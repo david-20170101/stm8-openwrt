@@ -3,17 +3,17 @@
 
 void GPIOPD3_OUT(void)
 {
-    PD_DDR |= 0x08;    // PD3   输出
-    PD_ODR |= 0x08;    // PD3   上拉
-    PD_CR1 |= 0x08;    // PD3   推挽
-    //PD_CR2 |= 0x08;  // 高速  10MHZ
+    PD_DDR |= 0x08;    // PD3   ���
+    PD_ODR |= 0x08;    // PD3   ����
+    PD_CR1 |= 0x08;    // PD3   ����
+    //PD_CR2 |= 0x08;  // ����  10MHZ
     PD_CR2 |= 0x00;
 }
 void GPIOPD3_IN(void)
 {
-    PD_DDR |= 0x00;  // PD3   输入
+    PD_DDR |= 0x00;  // PD3   ����
     PD_CR1 |= 0x00;  // PD3   
-    PD_CR2 |= 0x08;  // 上拉输入 
+    PD_CR2 |= 0x08;  // �������� 
 }
 void Delayms( unsigned int time )
 {
@@ -61,25 +61,25 @@ void Delayus( unsigned int time )
     }
 }
 /*************************************************************
-   函数名称:
-   函数功能:
-   入口参数:
-   入口参数的类型和含义:
-   出口参数:
-   备 注:
+   ��������:
+   ��������:
+   ��ڲ���:
+   ��ڲ��������ͺͺ���:
+   ���ڲ���:
+   �� ע:
 *************************************************************/
 unsigned char uc_ComDHT11(void)
 {
     unsigned char i, ucComData = 0;
     for( i = 0; i < 8; i++ )
     {
-        //接收到响应后会出现50us的低电平表示发送数据的开始，
-        //所以这里只要延时不超过50us即可
+        //���յ���Ӧ������50us�ĵ͵�ƽ��ʾ�������ݵĿ�ʼ��
+        //��������ֻҪ��ʱ������50us����
         while(!((PD_IDR & 0x08) == 0x08));
-        //位数据“0”的格式为：50微秒的低电平和26--28微秒的高电平，
-        //位数据“1”的格式为：50微秒的低电平加70微秒的高电平。
+        //λ���ݡ�0���ĸ�ʽΪ��50΢��ĵ͵�ƽ��26--28΢��ĸߵ�ƽ��
+        //λ���ݡ�1���ĸ�ʽΪ��50΢��ĵ͵�ƽ��70΢��ĸߵ�ƽ��
         Delayus( 30 );
-        if((PD_IDR & 0x08) == 0x08) // 高电平为1，低电平为0
+        if((PD_IDR & 0x08) == 0x08) // �ߵ�ƽΪ1���͵�ƽΪ0
         {
             ucComData |= ( 1 << ( 7 - i ) );
             while((PD_IDR & 0x08) == 0x08);
@@ -93,31 +93,31 @@ unsigned char uc_ComDHT11(void)
     return ucComData;
 }
 /*************************************************************
-   函数名称:
-   函数功能:
-   入口参数:
-   入口参数的类型和含义:
-   出口参数:
-   备 注:
+   ��������:
+   ��������:
+   ��ڲ���:
+   ��ڲ��������ͺͺ���:
+   ���ڲ���:
+   �� ע:
 *************************************************************/
 void ReadTempAndHumi( float *pTempValue, float *pHumiValue )
 {
     unsigned char ucDHT11Value[5] = { 0x00 };
 
-    GPIOPD3_OUT();       //推挽输出高速模式，此时输出高电平
-    DATA_DQ_LOW;         //此时处于主机输出模式，总线拉低，ODR设置为0
-    Delayms(180);        //拉低18毫秒
-    DATA_DQ_HIGH;        //释放总线、ODR设置为1
-    GPIOPD3_IN();        //上拉输入
-    Delayus(35);         //释放总线以后等待35微秒DHT会发出响应信号
+    GPIOPD3_OUT();       //�����������ģʽ����ʱ����ߵ�ƽ
+    DATA_DQ_LOW;         //��ʱ�����������ģʽ���������ͣ�ODR����Ϊ0
+    Delayms(180);        //����18����
+    DATA_DQ_HIGH;        //�ͷ����ߡ�ODR����Ϊ1
+    GPIOPD3_IN();        //��������
+    Delayus(35);         //�ͷ������Ժ�ȴ�35΢��DHT�ᷢ����Ӧ�ź�
     if(!((PD_IDR & 0x08) == 0x08))
     {
-        while(!((PD_IDR & 0x08) == 0x08));   //80us的应答信号 DHT11 TO MCU
-        while((PD_IDR & 0x08) == 0x08);      //80us的通知信号 DHT11 TO MCU
-        ucDHT11Value[0]	= uc_ComDHT11( ); // 湿度H
-        ucDHT11Value[1]	= uc_ComDHT11( ); // 湿度L
-        ucDHT11Value[2]	= uc_ComDHT11( ); // 温度H
-        ucDHT11Value[3]	= uc_ComDHT11( ); // 温度L
+        while(!((PD_IDR & 0x08) == 0x08));   //80us��Ӧ���ź� DHT11 TO MCU
+        while((PD_IDR & 0x08) == 0x08);      //80us��֪ͨ�ź� DHT11 TO MCU
+        ucDHT11Value[0]	= uc_ComDHT11( ); // ʪ��H
+        ucDHT11Value[1]	= uc_ComDHT11( ); // ʪ��L
+        ucDHT11Value[2]	= uc_ComDHT11( ); // �¶�H
+        ucDHT11Value[3]	= uc_ComDHT11( ); // �¶�L
         ucDHT11Value[4]	= uc_ComDHT11( ); // Check sum
         GPIOPD3_OUT();
         if( ( ucDHT11Value[0] + ucDHT11Value[1] + ucDHT11Value[2] +

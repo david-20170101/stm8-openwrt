@@ -8,6 +8,7 @@
 #include "string.h"
 #include "dht11.h"
 #include "led.h"
+//#include "code.h"
 
 #define MAXMESG 16
 #define uchar unsigned char
@@ -18,6 +19,7 @@ typedef enum { FAILED = 0, PASSED = !FAILED } TestStatus;
 TestStatus Buffercmp(uchar *pBuffer1, uchar *pBuffer2, uint Buffer1Length, uint BufferLength);
 void UART1_sendchar(uchar data);
 void UART1_SendString(uchar *Data,uint len);
+void ByteToHexStr(uchar byte_arr[], uint arr_len);
 void UART1_Init(void);
 void CLK_HSI_Init(void);
 
@@ -30,9 +32,39 @@ uchar PC5[6]="AT+PC5";
 uchar PC6[6]="AT+PC6";
 static char DHT11_TxBuffer1[40];
 static char LED_Buffer[8]={'0','0','0','0','0','0','0','0'};
+static uchar UniqueID[12]={0x46,0x44,0x43,0x48,0x41,0x42,0x20,0x5F,0x20,0x2A,0x2F,0x67};
 
 uchar TempData,HumiData;
 
+/*****************************************************************/
+void ByteToHexStr(uchar byte_arr[], uint arr_len)
+{
+    uint i=0;
+    for (;i<arr_len;i++)
+    {
+        char hex1;
+        char hex2;
+        int value=byte_arr[i];   //Ö±½Ó½«unsigned char¸³Öµ¸øÕûÐÍµÄÖµ£¬ÏµÍ³»áÕý¶¯Ç¿ÖÆ×ª»»
+        int v1=value/16;
+        int v2=value % 16;       //½«ÉÌ×ª³É×ÖÄ¸
+        if (v1>=0&&v1<=9)
+            hex1=(char)(48+v1);
+        else
+            hex1=(char)(55+v1);  //½«ÓàÊý×ª³É×ÖÄ¸
+        if (v2>=0&&v2<=9)
+            hex2=(char)(48+v2);
+        else
+            hex2=(char)(55+v2);  //½«×ÖÄ¸Á¬½Ó³É´®
+        UART1_sendchar('0');
+        UART1_sendchar('x');
+        UART1_sendchar(hex1);
+        UART1_sendchar(hex2);
+        UART1_sendchar(' ');
+    }
+    //return hexstr;
+} 
+//ÕâÑù¾Í¿ÉÒÔÍ¨¹ýÒ»¸öº¯Êý½«Ò»¸öBYTEÊý×é×ª³ÉÒ»¸ö16½øÖÆµÄstring¶ÔÏóÁË¡£
+/*****************************************************************/
 void CLK_HSI_Init(void)
 {
     CLK_ECKCR  = 0x00;         //Disable extern HSE
@@ -42,32 +74,34 @@ void CLK_HSI_Init(void)
     //CLK_CKDIVR = 0x18;       //Fmaster=16MHZ/8 Fcpu=Fmaster=2MHZ
     CLK_CKDIVR = 0x00;         //Fmaster=16MHZ
 }
+/*****************************************************************/
 void UART1_Init(void)
 {
-    UART1_CR1=0x00; //è®¾ç½®Må­—é•¿ï¼Œ8ä½æ•°æ®ä½
+    UART1_CR1=0x00; //ÉèÖÃM×Ö³¤£¬8Î»Êý¾ÝÎ»
     UART1_CR2=0x00; 
-    UART1_CR3=0x00; //1ä½åœæ­¢ä½
+    UART1_CR3=0x00; //1Î»Í£Ö¹Î»
 
-    // è®¾ç½®æ³¢ç‰¹çŽ‡ï¼Œå¿…é¡»æ³¨æ„ä»¥ä¸‹å‡ ç‚¹ï¼š
-    // (1) å¿…é¡»å…ˆå†™BRR2
-    // (2) BRR1å­˜æ”¾çš„æ˜¯åˆ†é¢‘ç³»æ•°çš„ç¬¬11ä½åˆ°ç¬¬4ä½ï¼Œ
-    // (3) BRR2å­˜æ”¾çš„æ˜¯åˆ†é¢‘ç³»æ•°çš„ç¬¬15ä½åˆ°ç¬¬12ä½ï¼Œå’Œç¬¬3ä½
-    // åˆ°ç¬¬0ä½
-    // ä¾‹å¦‚å¯¹äºŽæ³¢ç‰¹çŽ‡ä½9600æ—¶ï¼Œåˆ†é¢‘ç³»æ•°=2000000/9600=208
-    // å¯¹åº”çš„åå…­è¿›åˆ¶æ•°ä¸º00D0ï¼ŒBBR1=0D,BBR2=00
-    // ä¾‹å¦‚å¯¹äºŽæ³¢ç‰¹çŽ‡ä½9600æ—¶ï¼Œåˆ†é¢‘ç³»æ•°=16000000/9600=1666
-    // å¯¹åº”çš„åå…­è¿›åˆ¶æ•°ä¸º0682ï¼ŒBBR1=68,BBR2=02
-    // ä¾‹å¦‚å¯¹äºŽæ³¢ç‰¹çŽ‡ä½115200æ—¶ï¼Œåˆ†é¢‘ç³»æ•°=2000000/115200=17
-    // å¯¹åº”çš„åå…­è¿›åˆ¶æ•°ä¸º0011ï¼ŒBBR1=01,BBR2=01
-    // ä¾‹å¦‚å¯¹äºŽæ³¢ç‰¹çŽ‡ä½115200æ—¶ï¼Œåˆ†é¢‘ç³»æ•°=16000000/115200=138
-    // å¯¹åº”çš„åå…­è¿›åˆ¶æ•°ä¸º008Aï¼ŒBBR1=08,BBR2=0A
+    // ÉèÖÃ²¨ÌØÂÊ£¬±ØÐë×¢ÒâÒÔÏÂ¼¸µã£º
+    // (1) ±ØÐëÏÈÐ´BRR2
+    // (2) BRR1´æ·ÅµÄÊÇ·ÖÆµÏµÊýµÄµÚ11Î»µ½µÚ4Î»£¬
+    // (3) BRR2´æ·ÅµÄÊÇ·ÖÆµÏµÊýµÄµÚ15Î»µ½µÚ12Î»£¬ºÍµÚ3Î»
+    // µ½µÚ0Î»
+    // ÀýÈç¶ÔÓÚ²¨ÌØÂÊÎ»9600Ê±£¬·ÖÆµÏµÊý=2000000/9600=208
+    // ¶ÔÓ¦µÄÊ®Áù½øÖÆÊýÎª00D0£¬BBR1=0D,BBR2=00
+    // ÀýÈç¶ÔÓÚ²¨ÌØÂÊÎ»9600Ê±£¬·ÖÆµÏµÊý=16000000/9600=1666
+    // ¶ÔÓ¦µÄÊ®Áù½øÖÆÊýÎª0682£¬BBR1=68,BBR2=02
+    // ÀýÈç¶ÔÓÚ²¨ÌØÂÊÎ»115200Ê±£¬·ÖÆµÏµÊý=2000000/115200=17
+    // ¶ÔÓ¦µÄÊ®Áù½øÖÆÊýÎª0011£¬BBR1=01,BBR2=01
+    // ÀýÈç¶ÔÓÚ²¨ÌØÂÊÎ»115200Ê±£¬·ÖÆµÏµÊý=16000000/115200=138
+    // ¶ÔÓ¦µÄÊ®Áù½øÖÆÊýÎª008A£¬BBR1=08,BBR2=0A
     UART1_BRR2=0x02;
     UART1_BRR1=0x68;
     //UART1_BRR2=0x0A;
     //UART1_BRR1=0x08;
 
-    UART1_CR2=0x2c;       //å…è®¸æŽ¥æ”¶ï¼Œå‘é€ï¼Œå¼€æŽ¥æ”¶ä¸­æ–­
+    UART1_CR2=0x2c;       //ÔÊÐí½ÓÊÕ£¬·¢ËÍ£¬¿ª½ÓÊÕÖÐ¶Ï
 }
+/*****************************************************************/
 
 main()
 {
@@ -76,9 +110,12 @@ main()
     CLK_HSI_Init();
     UART1_Init();
     LED_Init(LED_Buffer);
+    //encrypt((uchar*)UniqueID);
+    //ByteToHexStr((uchar*)UniqueID, sizeof(UniqueID));
+    //decrypt((uchar*)UniqueID);
 
-    _asm("rim");      //å¼€å…¨å±€ä¸­æ–­ï¼Œsimä¸ºå…³ä¸­æ–­
-    //_asm("sim");    //å…³å…¨å±€ä¸­æ–­
+    _asm("rim");      //¿ªÈ«¾ÖÖÐ¶Ï£¬simÎª¹ØÖÐ¶Ï
+    //_asm("sim");    //¹ØÈ«¾ÖÖÐ¶Ï
     while (1)
     {
         uint TP=TempData;
@@ -90,7 +127,19 @@ main()
    }
 }
 
-
+/***************************************************/
+void UART1_sendchar(uchar data)
+{
+    while((UART1_SR & 0x80)==0x00);
+    UART1_DR = data;
+}
+/***************************************************/
+void UART1_SendString(uchar *Data,uint len)
+{
+    uint i=0;
+    for(;i<len;i++)
+    UART1_sendchar(Data[i]);
+}
 /***************************************************/
 /**
   * @brief Compares two buffers.
@@ -121,24 +170,12 @@ TestStatus Buffercmp(uchar *pBuffer1, uchar *pBuffer2, uint Buffer1Length, uint 
     return PASSED;
 }
 /***************************************************/
-void UART1_sendchar(uchar data)
-{
-    while((UART1_SR & 0x80)==0x00);
-    UART1_DR = data;
-}
-/***************************************************/
-void UART1_SendString(uchar *Data,uint len)
-{
-    uint i=0;
-    for(;i<len;i++)
-    UART1_sendchar(Data[i]);
-}
-/***************************************************/
-//åˆ¤æ–­æŽ¥æ”¶åˆ°çš„æ•°æ®ï¼Œå¦‚æžœä¸æ˜¯ATå‘½ä»¤ï¼Œå†åŽŸæ ·å‘é€å›žåŽ»ã€‚
+//ÅÐ¶Ï½ÓÊÕµ½µÄÊý¾Ý£¬Èç¹û²»ÊÇATÃüÁî£¬ÔÙÔ­Ñù·¢ËÍ»ØÈ¥¡£
 @far @interrupt void UART1_Recv_IRQHandler (void)
 {
     uchar ch;
     ch = UART1_DR;
+    //if (!UniqueIDcmp((uchar*)UniqueID)){ return; }
     if (len==MAXMESG) 
     {
         len=0;
@@ -217,34 +254,4 @@ void UART1_SendString(uchar *Data,uint len)
     }
     return;
 }
-
-/*
-void ByteToHexStr(uchar byte_arr[], uint arr_len)
-{
-    uint i=0;
-    for (;i<arr_len;i++)
-    {
-        char hex1;
-        char hex2;
-        int value=byte_arr[i];   //ç›´æŽ¥å°†unsigned charèµ‹å€¼ç»™æ•´åž‹çš„å€¼ï¼Œç³»ç»Ÿä¼šæ­£åŠ¨å¼ºåˆ¶è½¬æ¢
-        int v1=value/16;
-        int v2=value % 16;       //å°†å•†è½¬æˆå­—æ¯
-        if (v1>=0&&v1<=9)
-            hex1=(char)(48+v1);
-        else
-            hex1=(char)(55+v1);  //å°†ä½™æ•°è½¬æˆå­—æ¯
-        if (v2>=0&&v2<=9)
-            hex2=(char)(48+v2);
-        else
-            hex2=(char)(55+v2);  //å°†å­—æ¯è¿žæŽ¥æˆä¸²
-        UART1_sendchar('0');
-        UART1_sendchar('x');
-        UART1_sendchar(hex1);
-        UART1_sendchar(hex2);
-        UART1_sendchar(' ');
-    }
-    //return hexstr;
-} 
-//è¿™æ ·å°±å¯ä»¥é€šè¿‡ä¸€ä¸ªå‡½æ•°å°†ä¸€ä¸ªBYTEæ•°ç»„è½¬æˆä¸€ä¸ª16è¿›åˆ¶çš„stringå¯¹è±¡äº†ã€‚
-*/
 /* EOF */
